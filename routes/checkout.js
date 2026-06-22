@@ -1,3 +1,5 @@
+const { getFounderCount } = require("../db");
+
 const express = require("express");
 const stripe = require("../stripe");
 const router = express.Router();
