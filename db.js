@@ -26,3 +26,16 @@ async function getStatus(email) {
 }
 
 module.exports = { supabase, upsertStatus, getStatus };
+async function getFounderCount(supabase) {
+  const { count, error } = await supabase
+    .from("subscriptions")
+    .select("*", { count: "exact", head: true })
+    .eq("plan", "founder");
+
+  if (error) throw error;
+  return count;
+}
+
+module.exports = {
+  getFounderCount
+};
