@@ -29,17 +29,17 @@ router.post(
      }
 
       // A new subscription (monthly or yearly Pro) was created.
-      if (event.type === "customer.subscription.created") {
-        const email = data.customer_email || data.metadata?.email;
+        if (event.type === "customer.subscription.created") {
+          const email = data.metadata?.email;
         if (email) {
           await upsertStatus(email, data.metadata?.plan || "pro", "active");
         }
       }
 
       // Recurring renewal payment succeeded — keep status active.
-      if (event.type === "invoice.paid" && data.subscription) {
-        const subscription = await stripe.subscriptions.retrieve(data.subscription);
-        const email = data.customer_email || data.metadata?.email;
+        if (event.type === "invoice.paid" && data.subscription) {
+           const subscription = await stripe.subscriptions.retrieve(data.subscription);
+           const email = subscription.metadata?.email;
         if (email) {
           await upsertStatus(email, subscription.metadata?.plan || "pro", "active");
         }
@@ -58,7 +58,7 @@ router.post(
       // Subscription cancelled (by the customer or after repeated failed
       // payments) — this is the actual downgrade trigger.
       if (event.type === "customer.subscription.deleted") {
-        const email = data.metadata?.email;
+        const email = data.customer_email || data.metadata?.email;
         if (email) {
           await upsertStatus(email, "free", "canceled");
         }
