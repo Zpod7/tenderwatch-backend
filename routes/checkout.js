@@ -7,8 +7,8 @@ const router = express.Router();
 // Replace these with your real Stripe Price IDs once created in the
 // Stripe Dashboard (Products -> create a recurring price for each).
 const PRICE_IDS = {
-  pro_monthly: "price_REPLACE_WITH_REAL_MONTHLY_PRICE_ID",
-  pro_yearly: "price_REPLACE_WITH_REAL_YEARLY_PRICE_ID"
+  pro_monthly: "price_1Tl13oPUaRaG36KRafhilnBm",
+  pro_yearly: "price_1Tl15ePUaRaG36KRo9vxM6AA"
 };
 
 router.post("/", async (req, res) => {
