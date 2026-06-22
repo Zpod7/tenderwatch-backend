@@ -27,7 +27,10 @@ router.post(
       // subscription object involved at all.
       if (event.type === "checkout.session.completed" && data.metadata?.plan === "founder") {
        const email = data.customer_email || data.metadata?.email;
-       await upsertStatus(email, "founder", "active");
+       
+       console.log("Founder purchase:", email);
+        
+        await upsertStatus(email, "founder", "active");
      }
 
       // A new subscription (monthly or yearly Pro) was created.
