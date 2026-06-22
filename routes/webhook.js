@@ -24,12 +24,13 @@ router.post(
       // Founder (one-time payment) completes here, since there's no
       // subscription object involved at all.
       if (event.type === "checkout.session.completed" && data.metadata?.plan === "founder") {
-        await upsertStatus(data.metadata.email, "founder", "active");
-      }
+       const email = data.customer_email;
+       await upsertStatus(email, "founder", "active");
+     }
 
       // A new subscription (monthly or yearly Pro) was created.
       if (event.type === "customer.subscription.created") {
-        const email = data.metadata?.email;
+        const email = data.customer_email || data.metadata?.email;
         if (email) {
           await upsertStatus(email, data.metadata?.plan || "pro", "active");
         }
