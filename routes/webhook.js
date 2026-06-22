@@ -20,6 +20,8 @@ router.post(
 
     const data = event.data.object;
 
+    console.log("Webhook received:", event.type);
+    
     try {
       // Founder (one-time payment) completes here, since there's no
       // subscription object involved at all.
