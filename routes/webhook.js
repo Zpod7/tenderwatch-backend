@@ -24,7 +24,7 @@ router.post(
       // Founder (one-time payment) completes here, since there's no
       // subscription object involved at all.
       if (event.type === "checkout.session.completed" && data.metadata?.plan === "founder") {
-       const email = data.customer_email;
+       const email = data.customer_email || data.metadata?.email;
        await upsertStatus(email, "founder", "active");
      }
 
@@ -39,7 +39,7 @@ router.post(
       // Recurring renewal payment succeeded — keep status active.
       if (event.type === "invoice.paid" && data.subscription) {
         const subscription = await stripe.subscriptions.retrieve(data.subscription);
-        const email = subscription.metadata?.email;
+        const email = data.customer_email || data.metadata?.email;
         if (email) {
           await upsertStatus(email, subscription.metadata?.plan || "pro", "active");
         }
