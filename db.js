@@ -1,0 +1,28 @@
+const { createClient } = require("@supabase/supabase-js");
+
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
+
+// We key everything by email, not a separate user-accounts system — simpler,
+// and matches how the extension already works (no login, just an email
+// entered once at checkout).
+
+async function upsertStatus(email, plan, status) {
+  return supabase.from("subscriptions").upsert(
+    [{ email: email.toLowerCase().trim(), plan, status, updated_at: new Date().toISOString() }],
+    { onConflict: "email" }
+  );
+}
+
+async function getStatus(email) {
+  const { data } = await supabase
+    .from("subscriptions")
+    .select("*")
+    .eq("email", email.toLowerCase().trim())
+    .single();
+  return data;
+}
+
+module.exports = { supabase, upsertStatus, getStatus };
