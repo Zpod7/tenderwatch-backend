@@ -14,6 +14,16 @@ const PRICE_IDS = {
 router.post("/", async (req, res) => {
   const { email, plan } = req.body;
 
+if (plan === "founder") {
+  const founderCount = await getFounderCount();
+
+  if (founderCount >= 50) {
+    return res.status(400).json({
+      error: "Founder plan is sold out"
+    });
+  }
+}
+  
   if (!email || !plan) {
     return res.status(400).json({ error: "email and plan are required" });
   }
