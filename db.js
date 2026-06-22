@@ -11,7 +11,14 @@ const supabase = createClient(
 
 async function upsertStatus(email, plan, status) {
   return supabase.from("subscriptions").upsert(
-    [{ email: email.toLowerCase().trim(), plan, status, updated_at: new Date().toISOString() }],
+    [
+      {
+        email: email.toLowerCase().trim(),
+        plan,
+        status,
+        updated_at: new Date().toISOString()
+      }
+    ],
     { onConflict: "email" }
   );
 }
@@ -22,20 +29,24 @@ async function getStatus(email) {
     .select("*")
     .eq("email", email.toLowerCase().trim())
     .single();
+
   return data;
 }
 
-module.exports = { supabase, upsertStatus, getStatus };
-async function getFounderCount(supabase) {
+async function getFounderCount() {
   const { count, error } = await supabase
     .from("subscriptions")
     .select("*", { count: "exact", head: true })
     .eq("plan", "founder");
 
   if (error) throw error;
+
   return count;
 }
 
 module.exports = {
+  supabase,
+  upsertStatus,
+  getStatus,
   getFounderCount
 };
