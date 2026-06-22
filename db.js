@@ -37,11 +37,12 @@ async function getFounderCount() {
   const { count, error } = await supabase
     .from("subscriptions")
     .select("*", { count: "exact", head: true })
-    .eq("plan", "founder");
+    .eq("plan", "founder")
+    .eq("status", "active");
 
   if (error) throw error;
 
-  return count;
+  return count || 0;
 }
 
 module.exports = {
