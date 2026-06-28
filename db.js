@@ -45,9 +45,22 @@ async function getFounderCount() {
   return count || 0;
 }
 
+async function hasFounderLicense(email) {
+  const { data, error } = await supabase
+    .from("subscriptions")
+    .select("plan, status")
+    .eq("email", email.toLowerCase().trim())
+    .single();
+
+  if (error || !data) return false;
+
+  return data.plan === "founder" && data.status === "active";
+}
+
 module.exports = {
   supabase,
   upsertStatus,
   getStatus,
-  getFounderCount
+  getFounderCount,
+  hasFounderLicense
 };
