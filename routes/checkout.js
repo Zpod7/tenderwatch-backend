@@ -1,11 +1,12 @@
-const { getFounderCount } = require("../db");
+const {
+  getFounderCount,
+  hasFounderLicense
+} = require("../db");
 
 const express = require("express");
 const stripe = require("../stripe");
 const router = express.Router();
 
-// Replace these with your real Stripe Price IDs once created in the
-// Stripe Dashboard (Products -> create a recurring price for each).
 const PRICE_IDS = {
   pro_monthly: "price_1TlHbkPUaRaG36KRte9vr6UE",
   pro_yearly: "price_1TlHbNPUaRaG36KRU2w5fXM8"
@@ -14,16 +15,7 @@ const PRICE_IDS = {
 router.post("/", async (req, res) => {
   const { email, plan } = req.body;
 
-if (plan === "founder") {
-  const founderCount = await getFounderCount();
-
-  if (founderCount >= 50) {
-    return res.status(400).json({
-      error: "Founder plan is sold out"
-    });
-  }
-}
-  
+  // 1. basic validation first
   if (!email || !plan) {
     return res.status(400).json({ error: "email and plan are required" });
   }
@@ -36,43 +28,68 @@ if (plan === "founder") {
       return res.status(400).json({ error: "Unknown plan" });
     }
 
+    // 2. Founder rules
+    if (isFounder) {
+
+      // already owns founder → block
+      if (await hasFounderLicense(email)) {
+        return res.status(400).json({
+          error: "You already own the Founder License."
+        });
+      }
+
+      // limit check
+      const founderCount = await getFounderCount();
+
+      if (founderCount >= 50) {
+        return res.status(400).json({
+          error: "Founder plan is sold out"
+        });
+      }
+    }
+
+    // 3. create Stripe checkout session
     const session = await stripe.checkout.sessions.create({
       mode: isFounder ? "payment" : "subscription",
       payment_method_types: ["card"],
+
       line_items: isFounder
         ? [{
             price_data: {
               currency: "usd",
-              product_data: { name: "TenderWatch Founder — Lifetime Access" },
+              product_data: {
+                name: "TenderWatch Founder — Lifetime Access"
+              },
               unit_amount: 14900
             },
             quantity: 1
           }]
-        : [{ price: PRICE_IDS[plan], quantity: 1 }],
+        : [{
+            price: PRICE_IDS[plan],
+            quantity: 1
+          }],
 
-      success_url: `https://zpod7.github.io/tenderwatch-privacy/success.html`,
-      cancel_url: `https://zpod7.github.io/tenderwatch-privacy/cancel.html`,
+      success_url: "https://zpod7.github.io/tenderwatch-privacy/success.html",
+      cancel_url: "https://zpod7.github.io/tenderwatch-privacy/cancel.html",
 
       customer_email: email,
 
-      // Metadata on the Checkout Session itself (covers the one-time
-      // Founder purchase, read via checkout.session.completed).
       metadata: { plan, email },
 
-      // For subscriptions specifically, metadata must ALSO be attached
-      // here so it propagates onto the actual Subscription object —
-      // otherwise later renewal/cancellation webhook events (which
-      // reference the Subscription, not the Checkout Session) won't have
-      // the email available.
       ...(isSubscription && {
-        subscription_data: { metadata: { plan, email } }
+        subscription_data: {
+          metadata: { plan, email }
+        }
       })
     });
 
-    res.json({ url: session.url });
+    return res.json({ url: session.url });
+
   } catch (err) {
     console.error("Checkout error:", err);
-    res.status(500).json({ error: "Could not create checkout session" });
+    return res.status(500).json({
+      error: "Could not create checkout session"
+    });
   }
 });
 
