@@ -92,9 +92,9 @@ const { email, plan, priceId } = req.body;
     return res.json({ url: session.url });
 
   } catch (err) {
-    console.error("Checkout error:", err);
+    console.error("🔥 STRIPE ERROR:", err.message);
     return res.status(500).json({
-      error: "Could not create checkout session"
+       error: err.message
     });
   }
 });
