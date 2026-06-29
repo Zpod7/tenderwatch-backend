@@ -30,7 +30,7 @@ const PRICE_IDS = {
 router.post("/", async (req, res) => {
   console.log("REQ BODY:", req.body); //
 
-const { email, plan } = req.body;
+const { email, plan, priceId } = req.body;
   
   // 1. basic validation first
   if (!email || !plan) {
@@ -71,12 +71,10 @@ const { email, plan } = req.body;
       payment_method_types: ["card"],
 
       line_items: [{
-        price: isFounder
-          ? PRICE_IDS.founder
-          : PRICE_IDS[plan],
-       quantity: 1
-      }],
-
+        price: priceId || (isFounder ? PRICE_IDS.founder : PRICE_IDS[plan]),
+        quantity: 1
+       }],
+      
       success_url: "https://zpod7.github.io/tenderwatch-privacy/success.html",
       cancel_url: "https://zpod7.github.io/tenderwatch-privacy/cancel.html",
 
