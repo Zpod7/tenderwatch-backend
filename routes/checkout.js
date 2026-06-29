@@ -8,9 +8,23 @@ const stripe = require("../stripe");
 const router = express.Router();
 
 const PRICE_IDS = {
-  pro_monthly: "price_1TnUMMPUaRaG36KR0TsDUoSm",
-  pro_yearly: "price_1TlHbNPUaRaG36KRU2w5fXM8",
-  founder: "price_1TlHasPUaRaG36KRnF8ND0Zq"
+  pro_monthly: {
+    usd: "price_1TnguVPUaRaG36KROPGr6zLB",
+    gbp: "price_1Tngv5PUaRaG36KRUN4mXYiA",
+    eur: "price_1TngvOPUaRaG36KR23BuR1KL"
+  },
+
+  pro_yearly: {
+    usd: "price_1TngwkPUaRaG36KRviBoxpl0",
+    gbp: "price_1TngxGPUaRaG36KRibmymxNP",
+    eur: "price_1TngyKPUaRaG36KR1FQ9enAo"
+  },
+
+  founder: {
+    usd: "price_1Tngz3PUaRaG36KRBtZnX73A",
+    gbp: "price_1TngzYPUaRaG36KRGzqWrOlO",
+    eur: "price_1TngzwPUaRaG36KRj55QIF0X"
+  }
 };
 
 router.post("/", async (req, res) => {
