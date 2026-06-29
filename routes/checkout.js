@@ -64,14 +64,18 @@ const { email, plan, priceId } = req.body;
         });
       }
     }
-
+    
+    if (!priceId) {
+    return res.status(400).json({ error: "Missing priceId" });
+  }
+    
     // 3. create Stripe checkout session
     const session = await stripe.checkout.sessions.create({
       mode: isFounder ? "payment" : "subscription",
       payment_method_types: ["card"],
 
       line_items: [{
-        price: priceId || (isFounder ? PRICE_IDS.founder : PRICE_IDS[plan]),
+        price: priceId,
         quantity: 1
        }],
       
@@ -92,9 +96,9 @@ const { email, plan, priceId } = req.body;
     return res.json({ url: session.url });
 
   } catch (err) {
-    console.error("🔥 STRIPE ERROR:", err.message);
+    console.error("🔥 STRIPE ERROR:", err);
     return res.status(500).json({
-       error: err.message
+       error: "Could not create checkout session"
     });
   }
 });
