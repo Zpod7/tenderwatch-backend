@@ -14,8 +14,10 @@ const PRICE_IDS = {
 };
 
 router.post("/", async (req, res) => {
-  const { email, plan } = req.body;
+  console.log("REQ BODY:", req.body); //
 
+const { email, plan } = req.body;
+  
   // 1. basic validation first
   if (!email || !plan) {
     return res.status(400).json({ error: "email and plan are required" });
