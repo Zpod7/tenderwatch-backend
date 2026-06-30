@@ -44,24 +44,30 @@ const { email, plan } = req.body;
     // 2. Founder rules
     if (isFounder) {
 
-      // already owns founder → block
-      if (await hasFounderLicense(email)) {
-        return res.status(400).json({
-          error: "You already own the Founder License."
-        });
-      }
+  // already has an active Pro subscription → block
+  if (await hasActiveProSubscription(email)) {
+    return res.status(400).json({
+      error: "You already have an active Pro subscription."
+    });
+  }
 
-      // limit check
-      const founderCount = await getFounderCount();
+  // already owns founder → block
+  if (await hasFounderLicense(email)) {
+    return res.status(400).json({
+      error: "You already own the Founder License."
+    });
+  }
 
-      if (founderCount >= 50) {
-        return res.status(400).json({
-          error: "Founder plan is sold out",
-          founderSoldOut: true
-        });
-      }
-    }
-    
+  // limit check
+  const founderCount = await getFounderCount();
+
+  if (founderCount >= 50) {
+    return res.status(400).json({
+      error: "Founder plan is sold out",
+      founderSoldOut: true
+    });
+  }
+}
     
     // 3. create Stripe checkout session
     const session = await stripe.checkout.sessions.create({
