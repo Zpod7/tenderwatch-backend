@@ -57,10 +57,27 @@ async function hasFounderLicense(email) {
   return data.plan === "founder" && data.status === "active";
 }
 
+async function hasActiveProSubscription(email) {
+  const { data, error } = await supabase
+    .from("subscriptions")
+    .select("plan, status")
+    .eq("email", email.toLowerCase().trim())
+    .single();
+
+  if (error || !data) return false;
+
+  const isProPlan =
+    data.plan === "pro_monthly" ||
+    data.plan === "pro_yearly";
+
+  return isProPlan && data.status === "active";
+}
+
 module.exports = {
   supabase,
   upsertStatus,
   getStatus,
   getFounderCount,
-  hasFounderLicense
+  hasFounderLicense,
+  hasActiveProSubscription
 };
