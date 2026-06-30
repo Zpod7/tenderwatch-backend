@@ -7,30 +7,15 @@ const express = require("express");
 const stripe = require("../stripe");
 const router = express.Router();
 
-const PRICE_IDS = {
-  pro_monthly: {
-    usd: "price_1TnguVPUaRaG36KROPGr6zLB",
-    gbp: "price_1Tngv5PUaRaG36KRUN4mXYiA",
-    eur: "price_1TngvOPUaRaG36KR23BuR1KL"
-  },
-
-  pro_yearly: {
-    usd: "price_1TngwkPUaRaG36KRviBoxpl0",
-    gbp: "price_1TngxGPUaRaG36KRibmymxNP",
-    eur: "price_1TngyKPUaRaG36KR1FQ9enAo"
-  },
-
-  founder: {
-    usd: "price_1Tngz3PUaRaG36KRBtZnX73A",
-    gbp: "price_1TngzYPUaRaG36KRGzqWrOlO",
-    eur: "price_1TngzwPUaRaG36KRj55QIF0X"
-  }
+const PRICE_IDS = { 
+  pro_monthly: "price_1Tngv5PUaRaG36KRUN4mXYiA", 
+  pro_yearly: "price_1TngxGPUaRaG36KRibmymxNP", 
+  founder: "price_1TngzYPUaRaG36KRGzqWrOlO" 
 };
 
-router.post("/", async (req, res) => {
-  console.log("REQ BODY:", req.body); //
 
-const { email, plan, priceId } = req.body;
+router.post("/", async (req, res) => {
+const { email, plan } = req.body;
   
   // 1. basic validation first
   if (!email || !plan) {
@@ -60,14 +45,12 @@ const { email, plan, priceId } = req.body;
 
       if (founderCount >= 50) {
         return res.status(400).json({
-          error: "Founder plan is sold out"
+          error: "Founder plan is sold out",
+          founderSoldOut: true
         });
       }
     }
     
-    if (!priceId) {
-    return res.status(400).json({ error: "Missing priceId" });
-  }
     
     // 3. create Stripe checkout session
     const session = await stripe.checkout.sessions.create({
@@ -75,9 +58,9 @@ const { email, plan, priceId } = req.body;
       payment_method_types: ["card"],
 
       line_items: [{
-        price: priceId,
-        quantity: 1
-       }],
+       price: PRICE_IDS[plan],
+       quantity: 1
+   }],
       
       success_url: "https://zpod7.github.io/tenderwatch-privacy/success.html",
       cancel_url: "https://zpod7.github.io/tenderwatch-privacy/cancel.html",
