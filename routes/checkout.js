@@ -1,6 +1,7 @@
 const {
   getFounderCount,
-  hasFounderLicense
+  hasFounderLicense,
+  hasActiveProSubscription
 } = require("../db");
 
 const express = require("express");
@@ -26,6 +27,16 @@ const { email, plan } = req.body;
     const isFounder = plan === "founder";
     const isSubscription = plan === "pro_monthly" || plan === "pro_yearly";
 
+    if (isSubscription) {
+  const alreadyPro = await hasActiveProSubscription(email);
+
+  if (alreadyPro) {
+    return res.status(400).json({
+      error: "You already have an active Pro subscription."
+    });
+  }
+}
+    
     if (!isFounder && !isSubscription) {
       return res.status(400).json({ error: "Unknown plan" });
     }
