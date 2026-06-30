@@ -9,9 +9,9 @@ const stripe = require("../stripe");
 const router = express.Router();
 
 const PRICE_IDS = { 
-  pro_monthly: "price_1Tngv5PUaRaG36KRUN4mXYiA", 
-  pro_yearly: "price_1TngxGPUaRaG36KRibmymxNP", 
-  founder: "price_1TngzYPUaRaG36KRGzqWrOlO" 
+  pro_monthly: "price_1TngQkPUaRaG36KRp7ZCaILc", 
+  pro_yearly: "price_1TngLlPUaRaG36KRdj7dMnrf", 
+  founder: "price_1TngGOPUaRaG36KR3RsjzOOl" 
 };
 
 
